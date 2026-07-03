@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Repositories\AnimalRepository;
+use Illuminate\Support\Facades\Storage;
 
 class AnimalService extends BaseService
 {
@@ -11,8 +12,39 @@ class AnimalService extends BaseService
         parent::__construct($repository);
     }
 
-    public function publicList(array $filters = [], int $perPage = 20)
+    public function update(int $id, array $data)
     {
-        return $this->repository->publicList($filters, $perPage);
+        $image = $data['image'] ?? null;
+        unset($data['image']);
+
+        $animal = parent::update($id, $data);
+
+        if ($image && $image->isValid()) {
+            $path = $image->store('animals', 'public');
+            $animal->images()->updateOrCreate(
+                ['is_primary' => true],
+                ['path' => $path]
+            );
+        }
+
+        return $animal;
+    }
+
+    public function create(array $data)
+    {
+        $image = $data['image'] ?? null;
+        unset($data['image']);
+
+        $animal = parent::create($data);
+
+        if ($image && $image->isValid()) {
+            $path = $image->store('animals', 'public');
+            $animal->images()->create([
+                'path' => $path,
+                'is_primary' => true,
+            ]);
+        }
+
+        return $animal;
     }
 }

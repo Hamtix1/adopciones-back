@@ -45,6 +45,7 @@ class UpdateAnimalRequest extends FormRequest
             'lives_with_cats' => ['boolean'],
             'lives_with_children' => ['boolean'],
             'video_url' => ['nullable', 'url', 'max:255'],
+            'image' => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif,webp', 'max:5120'],
         ];
     }
 }
